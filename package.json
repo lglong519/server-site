@@ -1,0 +1,49 @@
+{
+	"name": "server-site",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"dev": "gulp dev",
+		"build": "npm run build",
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"keywords": [],
+	"author": "lglong519",
+	"license": "ISC",
+	"eslintConfig": {
+		"extends": "teslint",
+		"rules": {
+			"spaced-comment": 0,
+			"no-empty": 0
+		}
+	},
+	"devDependencies": {
+		"@types/koa": "^2.0.45",
+		"@types/koa-bodyparser": "^4.2.0",
+		"@types/koa-router": "^7.0.35",
+		"@types/koa-static": "^4.0.0",
+		"@types/node": "^10.12.11",
+		"eslint-config-teslint": "^3.0.8",
+		"gulp": "^4.0.0",
+		"gulp-clean": "^0.4.0",
+		"gulp-nodemon": "^2.4.2",
+		"gulp-replace": "^1.0.0",
+		"gulp-sourcemaps": "^2.6.4",
+		"gulp-ssh": "^0.7.0",
+		"gulp-typescript": "^5.0.0-alpha.3"
+	},
+	"dependencies": {
+		"@koa/cors": "^2.2.2",
+		"koa": "^2.6.2",
+		"koa-body": "^4.0.4",
+		"koa-bodyparser": "^4.2.1",
+		"koa-morgan": "^1.0.1",
+		"koa-router": "^7.4.0",
+		"koa-static": "^5.0.0",
+		"lodash": "^4.17.11",
+		"mysql": "^2.16.0",
+		"nconf": "^0.10.0",
+		"require-dir": "^1.2.0"
+	}
+}

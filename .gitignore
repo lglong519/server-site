@@ -1,0 +1,9 @@
+node_modules
+*.js
+*.js.map
+!/gulp/*.js
+!/modules/**/*.js
+/modules/**/koa-morgan.js
+.config
+!gulpfile.js
+dist/

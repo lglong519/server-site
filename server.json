@@ -1,0 +1,9 @@
+{
+	"apps": [
+		{
+			"name": "ws",
+			"script": "./index.js",
+			"max_restarts": 15
+		}
+	]
+}
