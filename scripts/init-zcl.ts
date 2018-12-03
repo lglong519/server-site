@@ -1,4 +1,4 @@
-import createTables from './createTables';
+const createTables = require('./createTables');
 import * as requireDir from 'require-dir';
 const zclDatas = requireDir('./zcl/data');
 import { query } from '../libs/mysql';

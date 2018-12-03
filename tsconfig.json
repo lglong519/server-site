@@ -6,6 +6,8 @@
 		"moduleResolution": "Node",
 		"allowSyntheticDefaultImports": true,
 		"sourceMap": false,
+		"removeComments": true,
+		"declaration":false,
 		"watch": true,
 		"outDir": "./dist/",
         "baseUrl": ".",
@@ -17,6 +19,7 @@
         }
 	},
 	"exclude": [
-		"node_modules"
+		"node_modules",
+		"dist"
 	]
 }

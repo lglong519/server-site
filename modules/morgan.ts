@@ -10,17 +10,6 @@
 'use strict'
 
 /**
- * Module exports.
- * @public
- */
-
-module.exports = morgan
-module.exports.compile = compile
-module.exports.format = format
-module.exports.token = token
-module.exports.getip = getip
-
-/**
  * Module dependencies.
  * @private
  */
@@ -48,6 +37,11 @@ var CLF_MONTH = [
 
 var DEFAULT_BUFFER_DURATION = 1000
 
+interface Logger{
+	(req, res, next): void;
+}
+
+type formater = string|object|undefined;
 /**
  * Create a logger middleware.
  *
@@ -57,8 +51,8 @@ var DEFAULT_BUFFER_DURATION = 1000
  * @return {Function} middleware
  */
 
-function morgan (format, options) {
-	var fmt = format
+function morgan (format?: formater, options?): Logger {
+	var fmt: formater = format
 	var opts = options || {}
 
 	if (format && typeof format === 'object') {
@@ -144,6 +138,35 @@ function morgan (format, options) {
 
 		next()
 	}
+}
+
+morgan.default = '';
+
+/**
+ * Define a format with the given name.
+ *
+ * @param {string} name
+ * @param {string|function} fmt
+ * @public
+ */
+morgan.format = format;
+function format (name, fmt) {
+	morgan[name] = fmt
+	return this
+}
+
+/**
+ * Define a token function with the given name,
+ * and callback fn(req, res).
+ *
+ * @param {string} name
+ * @param {function} fn
+ * @public
+ */
+morgan.token = token;
+function token (name, fn) {
+	morgan[name] = fn
+	return this
 }
 
 /**
@@ -342,33 +365,13 @@ morgan.token('res', function getResponseHeader (req, res, field) {
 })
 
 /**
- * Format a Date in the common log format.
- *
- * @private
- * @param {Date} dateTime
- * @return {string}
- */
-
-function clfdate (dateTime) {
-	var date = dateTime.getDate()
-	var hour = dateTime.getHours()
-	var mins = dateTime.getMinutes()
-	var secs = dateTime.getSeconds()
-	var year = dateTime.getFullYear()
-
-	var month = CLF_MONTH[dateTime.getMonth()]
-
-	return year + '-' + month + '-' + pad2(date) + ' ' + pad2(hour) + ':' + pad2(mins) + ':' + pad2(secs)
-}
-
-/**
  * Compile a format string into a function.
  *
  * @param {string} format
  * @return {function}
  * @public
  */
-
+morgan.compile = compile;
 function compile (format) {
 	if (typeof format !== 'string') {
 		throw new TypeError('argument format must be a string')
@@ -420,19 +423,6 @@ function createBufferStream (stream, interval) {
 
 	// return a minimal "stream"
 	return { write }
-}
-
-/**
- * Define a format with the given name.
- *
- * @param {string} name
- * @param {string|function} fmt
- * @public
- */
-
-function format (name, fmt) {
-	morgan[name] = fmt
-	return this
 }
 
 /**
@@ -508,15 +498,9 @@ function recordStartTime () {
 }
 
 /**
- * Define a token function with the given name,
- * and callback fn(req, res).
- *
- * @param {string} name
- * @param {function} fn
+ * Module exports.
  * @public
  */
 
-function token (name, fn) {
-	morgan[name] = fn
-	return this
-}
+export = morgan;
+// module.exports.getip = getip
