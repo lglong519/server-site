@@ -2,7 +2,7 @@ import * as nconf from 'nconf';
 import * as requireDir from 'require-dir';
 import * as _ from 'lodash';
 import Debug from '../modules/Debug';
-import { query } from '../libs/mysql';
+import { query } from '../libs/mysqlPool';
 const debug = Debug('ws:createTables');
 
 nconf.required(['MYSQL']);

@@ -1,20 +1,11 @@
 /* eslint prefer-template:0 */
 import * as Router from 'koa-router';
-const router = new Router();
+import * as requireDir from 'require-dir';
+const zcl = requireDir('./zcl-controllers');
 
 const prefix = '/zcl';
-router.use((ctx, next) => {
-	console.log(ctx.subdomains);
-
-	let now = Date.now();
-	if (now % 2 == 0) {
-		return ctx.throw(400, Error(`ERR_CODE:${now}`));
-	}
-	next();
-});
-router.get(prefix + '/', (ctx, next) => {
-	ctx.body = { m: 9527 };
-	next();
-});
+const router = new Router();
+router.get(prefix + '/likes', zcl.likes.query);
+router.get(prefix + '/work-lists', zcl.work_lists.query);
 
 export =router;

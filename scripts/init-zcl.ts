@@ -1,7 +1,7 @@
 const createTables = require('./createTables');
 import * as requireDir from 'require-dir';
 const zclDatas = requireDir('./zcl/data');
-import { query } from '../libs/mysql';
+import { query } from '../libs/mysqlPool';
 
 async function processDatas (): Promise<any> {
 	await createTables;
