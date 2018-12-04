@@ -1,22 +1,25 @@
 
 import { query } from './mysqlPool';
 import * as _ from 'lodash';
+import Debug from '../modules/Debug';
+const debug = Debug('ws:MySQL');
 
-type options = {
+interface Options {
 	pageSize?: number;
-maxPageSize?: number;
-sort?: string;
-};
+	maxPageSize?: number;
+	sort?: string;
+	filter?(ctx: any): object;
+}
 
 export default class MySQL {
 
 	table: string;
-	options: options;
+	options: Options;
 	constructor (table: string, {
 		pageSize = 100,
 		maxPageSize = 100,
 		sort = '-createdAt'
-	}: options) {
+	}: Options) {
 		this.table = table;
 		this.options = {
 			pageSize,
@@ -29,8 +32,22 @@ export default class MySQL {
 			try {
 				// 1.WHERE
 				let where: string = '';
+				let conditions: string[] = [];
 				if (ctx.query.q) {
-					where = `WHERE ${ctx.query.q}`;
+					let q: object = JSON.parse(ctx.query.q);
+					Object.keys(q).forEach(key => {
+						conditions.push(`${key}=${q[key]}`);
+					});
+				}
+				if (this.options.filter) {
+					let q: object = this.options.filter(ctx);
+					Object.keys(q).forEach(key => {
+						conditions.push(`${key}=${q[key]}`);
+					});
+				}
+				conditions = [...new Set(conditions)];
+				if (conditions.length) {
+					where = `where ${conditions.join(' and ')}`;
 				}
 				// 2.ORDER BY
 				const sort: string = ctx.query.sort || this.options.sort;
@@ -44,6 +61,7 @@ export default class MySQL {
 				const pageSize = Math.min(requestedPageSize, this.options.maxPageSize);
 				// query
 				let sql = `select * from ${this.table} ${where} ${orderBy} LIMIT ${pageSize} OFFSET ${page * pageSize}`;
+				debug('sql:', sql);
 				let countSql = `select count(*) as count from ${this.table} ${where}`;
 				let results = await query(sql);
 				let count = await query(countSql);

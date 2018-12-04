@@ -45,8 +45,8 @@ server.use(koaStatic(`${__dirname}/public`));
 /**
  * @description load routes
  */
-import * as zcl from './routes/zcl';
-server.use(zcl.routes());
+import * as layouts from './routes/layouts';
+server.use(layouts.routes());
 
 server.listen(nconf.get('PORT'), () => {
 	debug('\nready on \x1B[33mhttp://%s:%s\x1B[39m ,NODE_ENV: \x1B[32m%s\x1B[39m\n', localhost, nconf.get('PORT'), nconf.get('NODE_ENV'));
