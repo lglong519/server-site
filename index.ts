@@ -3,9 +3,9 @@ import * as Koa from 'koa';
 import * as koaStatic from 'koa-static';
 import * as morgan from './modules/koa-morgan';
 import * as koaBody from 'koa-body';
-import * as cors from '@koa/cors';
 import * as localhost from './libs/getHost';
 import * as nconf from 'nconf';
+const cors = require('./modules/cors');
 /**
  * @description 加载配置,必需应用在所有自定义模块前
  */
