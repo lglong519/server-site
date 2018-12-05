@@ -9,5 +9,6 @@ router.get(prefix + '/likes', layouts.likes.query);
 router.get(prefix + '/work-lists', layouts.work_lists.query);
 router.get(prefix + '/:sid/likes', layouts.likes.query);
 router.get(prefix + '/:sid/work-lists', layouts.work_lists.query);
+router.get(prefix + '/:sid/swipers', layouts.swipers.query);
 
 export =router;
