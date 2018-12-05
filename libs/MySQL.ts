@@ -51,9 +51,9 @@ export default class MySQL {
 				}
 				// 2.ORDER BY
 				const sort: string = ctx.query.sort || this.options.sort;
-				let orderBy: string = `ORDER BY '${sort}' ASC`;
+				let orderBy: string = `ORDER BY ${sort}+0 ASC`;
 				if (sort.startsWith('-')) {
-					orderBy = `ORDER BY '${sort.replace('-', '')}' DESC`;
+					orderBy = `ORDER BY ${sort.replace('-', '')}+0 DESC`;
 				}
 				// 3.LIMIT & OFFSET
 				const page = Number(ctx.query.p) >= 0 ? Number(ctx.query.p) : 0;
