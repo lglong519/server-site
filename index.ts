@@ -32,7 +32,7 @@ server.use(koaBody({
 	multipart: true, // 支持文件上传
 	encoding: 'gzip',
 	formidable: {
-		uploadDir: `${__dirname}/public/upload/`, // 设置文件上传目录
+		uploadDir: `${process.cwd()}/public/upload/`, // 设置文件上传目录
 		keepExtensions: true,
 		maxFieldsSize: 2 * 1024 * 1024, // 文件上传大小 2g
 	}
@@ -40,7 +40,7 @@ server.use(koaBody({
 /**
   * @name 设置静态资源目录
 */
-server.use(koaStatic(`${__dirname}/public`));
+server.use(koaStatic(`${process.cwd()}/public`));
 
 /**
  * @description load routes

@@ -16,7 +16,7 @@ gulp.task('clean',function(){
  * @description 复制 modules
  */
 gulp.task('copy', function () {
-    return gulp.src(['modules/**/*.js','public/**/*','scripts/**/*.json'], {base: '.'})
+    return gulp.src(['modules/**/*.js','scripts/**/*.json'], {base: '.'})
     .pipe(gulp.dest('dist'));
 })
 /**

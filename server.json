@@ -2,7 +2,7 @@
 	"apps": [
 		{
 			"name": "ws",
-			"script": "./index.js",
+			"script": "./dist/index.js",
 			"max_restarts": 15
 		}
 	]

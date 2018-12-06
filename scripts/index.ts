@@ -1,1 +1,1 @@
-import './init-zcl';
+import './init-site-datas';
