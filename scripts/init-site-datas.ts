@@ -1,6 +1,6 @@
 const createTables = require('./createTables');
 import * as requireDir from 'require-dir';
-const zclDatas = requireDir('./zcl/data');
+const zclDatas = requireDir(`${process.cwd()}/scripts/zcl/data`);
 import { query } from '../libs/mysqlPool';
 import Debug from '../modules/Debug';
 const debug = Debug('ws:init-site-datas');
@@ -23,7 +23,7 @@ async function processDatas (siteDatas: object, siteName: string): Promise<any> 
 				where not exists(select id from ${item[0]} where ${Object.keys(data)[0]}='${Object.values(data)[0]}');
 			`;
 			query(sql).catch(err => {
-				debug(sql);
+				debug('error sql', sql);
 				debug(err);
 				process.exit();
 			});

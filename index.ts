@@ -26,6 +26,10 @@ Debug.enable('ws:*');
 const debug = Debug('ws:index');
 const server = new Koa();
 
+/**
+  * @name 设置静态资源目录
+*/
+server.use(koaStatic(`${process.cwd()}/public`));
 server.use(morgan('dev'));
 server.use(cors(nconf.get('CORS')));
 server.use(koaBody({
@@ -37,10 +41,6 @@ server.use(koaBody({
 		maxFieldsSize: 2 * 1024 * 1024, // 文件上传大小 2g
 	}
 }));
-/**
-  * @name 设置静态资源目录
-*/
-server.use(koaStatic(`${process.cwd()}/public`));
 
 /**
  * @description load routes
