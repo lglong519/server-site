@@ -1,6 +1,7 @@
 const createTables = require('./createTables');
+const initSites = require('./init-sites');
 import * as requireDir from 'require-dir';
-const zclDatas = requireDir(`${process.cwd()}/scripts/zcl/data`);
+const zclDatas = requireDir(`${process.cwd()}/scripts/data/zcl`);
 import { query } from '../libs/mysqlPool';
 import Debug from '../modules/Debug';
 const debug = Debug('ws:init-site-datas');
@@ -8,6 +9,7 @@ import * as assert from 'assert';
 
 async function processDatas (siteDatas: object, siteName: string): Promise<any> {
 	await createTables;
+	await initSites;
 	let select = `select id from sites where name="${siteName}"`;
 	debug(select);
 	let site = await query(select);

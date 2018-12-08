@@ -40,6 +40,11 @@ const destGlobs = [
 	'./**/*',
 	'!**/node_modules/**',
 	'!**/logs/**',
+	'!./dist/**',
+	'!./.vscode/**',
+	'!./mysql/**',
+	'!./typings/**',
+	'!./test/**',
 ];
 gulp.task('dest', () => gulp
 	.src(destGlobs)
@@ -64,6 +69,7 @@ gulp.task(
 			.shell([
 				`cd ${nconf.get('SERVER')}`,
 				'npm install',
+				'gulp build',
 				'pm2 start server.json'
 			], {
 				filePath: 'shell.log'
@@ -79,6 +85,7 @@ gulp.task(
 		() => gulpSSH
 			.shell([
 				`cd ${nconf.get('SERVER')}`,
+				'gulp build',
 				'pm2 start server.json'
 			], {
 				filePath: 'shell.log'
@@ -95,3 +102,29 @@ gulp.task(
 	'deploy:sl',
 	gulp.series('shell.slim')
 );
+
+gulp.task('deploy:single', () => {
+	if (process.env.file) {
+		if (fs.existsSync(process.env.file)) {
+			return gulp
+				.src(process.env.file, { base: '.' })
+				.pipe(gulpSSH.dest(nconf.get('SERVER')));
+		}
+		return Promise.reject('FILE_NOT_EXISTS');
+	}
+	return Promise.reject('MISSING_FILE');
+});
+
+
+gulp.task('shell.single',() => gulpSSH
+			.shell([
+				`cd ${nconf.get('SERVER')}`,
+				'gulp tsc',
+				'pm2 start server.json'
+			], {
+				filePath: 'shell.log'
+			})
+					.pipe(gulp.dest('logs'))
+);
+
+gulp.task('sync', gulp.series('deploy:single','shell.single'));
