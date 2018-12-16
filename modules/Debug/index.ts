@@ -9,7 +9,6 @@ interface Debug {
 	(namespace: string): DebugLog;
 	enable(namespaces: string): void;
 }
- 
-declare let debug: Debug;
 
+const debug: Debug = require('./src/node');
 export = debug
