@@ -1,4 +1,4 @@
-import Debug from './modules/Debug';
+import Debug, { enable } from './modules/Debug';
 import * as Koa from 'koa';
 import * as koaStatic from 'koa-static';
 import * as morgan from './modules/koa-morgan';
@@ -21,7 +21,7 @@ nconf.required([
  */
 import './scripts';
 
-Debug.enable('ws:*');
+enable('ws:*');
 
 const debug = Debug('ws:index');
 const server = new Koa();
@@ -49,7 +49,7 @@ import * as layouts from './routes/layouts';
 server.use(layouts.routes());
 
 server.listen(nconf.get('PORT'), () => {
-	debug('\nready on \x1B[33mhttp://%s:%s\x1B[39m ,NODE_ENV: \x1B[32m%s\x1B[39m\n', localhost, nconf.get('PORT'), nconf.get('NODE_ENV'));
+	debug('ready on \x1B[33mhttp://%s:%s\x1B[39m ,NODE_ENV: \x1B[32m%s\x1B[39m\n', localhost, nconf.get('PORT'), nconf.get('NODE_ENV'));
 });
 
 server.on('error', (err, ctx) => {

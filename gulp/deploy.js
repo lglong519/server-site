@@ -45,6 +45,7 @@ const destGlobs = [
 	'!./mysql/**',
 	'!./typings/**',
 	'!./test/**',
+	'!./public/**',
 ];
 gulp.task('dest', () => gulp
 	.src(destGlobs)

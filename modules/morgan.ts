@@ -15,20 +15,10 @@
  */
 
 var auth = require('basic-auth')
-var debug = require('./Debug')('server:morgan')
+var debug = require('./Debug').default('server:morgan')
 var deprecate = require('depd')('morgan')
 var onFinished = require('on-finished')
 var onHeaders = require('on-headers')
-
-/**
- * Array of CLF month names.
- * @private
- */
-
-var CLF_MONTH = [
-	'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-	'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-]
 
 /**
  * Default log buffer duration.
@@ -471,20 +461,6 @@ function headersSent (res) {
 	return typeof res.headersSent !== 'boolean'
 		? Boolean(res._header)
 		: res.headersSent
-}
-
-/**
- * Pad number to two digits.
- *
- * @private
- * @param {number} num
- * @return {string}
- */
-
-function pad2 (num) {
-	var str = String(num)
-
-	return (str.length === 1 ? '0' : '') + str
 }
 
 /**
