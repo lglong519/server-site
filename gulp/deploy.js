@@ -129,3 +129,4 @@ gulp.task('shell.single',() => gulpSSH
 );
 
 gulp.task('sync', gulp.series('deploy:single','shell.single'));
+// gulp.task('sync', gulp.series('deploy:single'));

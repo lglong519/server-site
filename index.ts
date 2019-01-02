@@ -5,6 +5,7 @@ import * as morgan from './modules/koa-morgan';
 import * as koaBody from 'koa-body';
 import * as localhost from './libs/getHost';
 import * as nconf from 'nconf';
+import history from './libs/history';
 const cors = require('./modules/cors');
 /**
  * @description 加载配置,必需应用在所有自定义模块前
@@ -26,9 +27,16 @@ enable('ws:*');
 const debug = Debug('ws:index');
 const server = new Koa();
 
+server.use(history({
+	rewrites: [
+		{ from: /\/acc\/[^.]*$/, to: '/acc/index.html' },
+		{ from: /^\/cool\/$/, to: '/cool/index.html' },
+	]
+}));
+
 /**
-  * @name 设置静态资源目录
-*/
+ * @name 设置静态资源目录
+ */
 server.use(koaStatic(`${process.cwd()}/public`));
 server.use(morgan('dev'));
 server.use(cors(nconf.get('CORS')));

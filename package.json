@@ -10,6 +10,7 @@
 		"deploy:sl": "gulp deploy:sl",
 		"config": "gulp sftp-write",
 		"server": "gulp start-server",
+		"watch": "tsc --watch",
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
 	"keywords": [],
@@ -38,6 +39,7 @@
 	},
 	"dependencies": {
 		"@koa/cors": "^2.2.2",
+		"connect-history-api-fallback": "^1.5.0",
 		"koa": "^2.6.2",
 		"koa-body": "^4.0.4",
 		"koa-morgan": "^1.0.1",
