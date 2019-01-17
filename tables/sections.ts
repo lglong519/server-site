@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS sites (
 	title VARCHAR(100),
 	prev INT COMMENT '上一章',
 	next INT COMMENT '下一章',
-	contents LONGTEXT,
+	contents TEXT,
 	createdAt datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
 	updatedAt timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
 	PRIMARY KEY (id),

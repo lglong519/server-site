@@ -8,6 +8,7 @@ interface Options {
 	pageSize?: number;
 	maxPageSize?: number;
 	sort?: string;
+	select?: string;
 	filter?(ctx: any): object;
 }
 
@@ -18,13 +19,15 @@ export default class MySQL {
 	constructor (table: string, {
 		pageSize = 100,
 		maxPageSize = 100,
-		sort = '-createdAt'
+		sort = '-createdAt',
+		select = '*'
 	}: Options) {
 		this.table = table;
 		this.options = {
 			pageSize,
 			maxPageSize,
-			sort
+			sort,
+			select
 		};
 	}
 	query () {
@@ -60,7 +63,7 @@ export default class MySQL {
 				const requestedPageSize = Number(ctx.query.pageSize) > 0 ? Number(ctx.query.pageSize) : this.options.pageSize;
 				const pageSize = Math.min(requestedPageSize, this.options.maxPageSize);
 				// query
-				let sql = `select * from ${this.table} ${where} ${orderBy} LIMIT ${pageSize} OFFSET ${page * pageSize}`;
+				let sql = `select ${this.options.select} from ${this.table} ${where} ${orderBy} LIMIT ${pageSize} OFFSET ${page * pageSize}`;
 				debug('sql:', sql);
 				let countSql = `select count(*) as count from ${this.table} ${where}`;
 				let results = await query(sql);
