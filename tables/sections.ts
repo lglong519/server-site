@@ -1,14 +1,18 @@
+const TABLE = 'sections';
+const PRIMARY_KEY = '_id';
+
 export = `
-CREATE TABLE IF NOT EXISTS sites (
-	id INT UNSIGNED AUTO_INCREMENT,
-	book INT,
+CREATE TABLE IF NOT EXISTS ${TABLE} (
+	${PRIMARY_KEY} INT UNSIGNED AUTO_INCREMENT,
+	id INT,
+	book INT COMMENT '书本 id',
 	title VARCHAR(100),
-	prev INT COMMENT '上一章',
-	next INT COMMENT '下一章',
-	contents TEXT,
+	prev INT COMMENT '上一章 id',
+	next INT COMMENT '下一章 id',
+	sequence INT COMMENT 'index',
 	createdAt datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
 	updatedAt timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
-	PRIMARY KEY (id),
+	PRIMARY KEY (${PRIMARY_KEY}),
 	FOREIGN KEY (book) REFERENCES books(id),
 	FOREIGN KEY (prev) REFERENCES sections(id),
 	FOREIGN KEY (next) REFERENCES sections(id)

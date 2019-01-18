@@ -9,6 +9,7 @@ interface Options {
 	maxPageSize?: number;
 	sort?: string;
 	select?: string;
+	queryString?: string;
 	filter?(ctx: any): object;
 }
 
@@ -20,14 +21,18 @@ export default class MySQL {
 		pageSize = 100,
 		maxPageSize = 100,
 		sort = '-createdAt',
-		select = '*'
+		select = '*',
+		queryString = 'id',
+		filter
 	}: Options) {
 		this.table = table;
 		this.options = {
 			pageSize,
 			maxPageSize,
 			sort,
-			select
+			select,
+			queryString,
+			filter
 		};
 	}
 	query () {
@@ -75,6 +80,42 @@ export default class MySQL {
 					'X-Total-Count': _.get(count, '[0].count')
 				});
 				ctx.body = results;
+			} catch (e) {
+				ctx.throw(400, e);
+			}
+		};
+	}
+	detail () {
+		return async ctx => {
+			try {
+				// 1.WHERE
+				let where: string = '';
+				// 默认使用 id
+				let conditions: string[] = [`${this.options.queryString}=${ctx.params.id}`];
+				if (ctx.query.q) {
+					let q: object = JSON.parse(ctx.query.q);
+					Object.keys(q).forEach(key => {
+						conditions.push(`${key}=${q[key]}`);
+					});
+				}
+				if (this.options.filter) {
+					let q: object = this.options.filter(ctx);
+					Object.keys(q).forEach(key => {
+						conditions.push(`${key}=${q[key]}`);
+					});
+				}
+				conditions = [...new Set(conditions)];
+				if (conditions.length) {
+					where = `where ${conditions.join(' and ')}`;
+				}
+				// query
+				let sql = `select ${this.options.select} from ${this.table} ${where} LIMIT 1`;
+				debug('sql:', sql);
+				let results = await query(sql);
+				if (!results || !results.length) {
+					throw Error('NOt_FOUND');
+				}
+				ctx.body = results[0];
 			} catch (e) {
 				ctx.throw(400, e);
 			}

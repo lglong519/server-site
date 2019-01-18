@@ -1,12 +1,4 @@
-import Debug, { enable } from './modules/Debug';
-import * as Koa from 'koa';
-import * as koaStatic from 'koa-static';
-import * as morgan from './modules/koa-morgan';
-import * as koaBody from 'koa-body';
-import * as localhost from './libs/getHost';
 import * as nconf from 'nconf';
-import history from './libs/history';
-const cors = require('./modules/cors');
 /**
  * @description 加载配置,必需应用在所有自定义模块前
  */
@@ -17,6 +9,16 @@ nconf.required([
 	'PORT',
 	'CORS',
 ]);
+import Debug, { enable } from './modules/Debug';
+import * as Koa from 'koa';
+import * as koaStatic from 'koa-static';
+import * as morgan from './modules/koa-morgan';
+import * as koaBody from 'koa-body';
+import * as localhost from './libs/getHost';
+import history from './libs/history';
+import { query } from './libs/mysqlPool';
+
+const cors = require('./modules/cors');
 /**
  * @description 初始化必要的数据
  */
@@ -27,6 +29,7 @@ enable('ws:*');
 const debug = Debug('ws:index');
 const server = new Koa();
 
+server.context.exec = query;
 server.use(history({
 	rewrites: [
 		{ from: /\/acc\/[^.]*$/, to: '/acc/index.html' },
@@ -40,21 +43,15 @@ server.use(history({
 server.use(koaStatic(`${process.cwd()}/public`));
 server.use(morgan('dev'));
 server.use(cors(nconf.get('CORS')));
-server.use(koaBody({
-	multipart: true, // 支持文件上传
-	encoding: 'gzip',
-	formidable: {
-		uploadDir: `${process.cwd()}/public/upload/`, // 设置文件上传目录
-		keepExtensions: true,
-		maxFieldsSize: 2 * 1024 * 1024, // 文件上传大小 2g
-	}
-}));
+server.use(koaBody());
 
 /**
  * @description load routes
  */
 import * as layouts from './routes/layouts';
 server.use(layouts.routes());
+import books from './routes/books';
+server.use(books.routes());
 
 server.listen(nconf.get('PORT'), () => {
 	debug('ready on \x1B[33mhttp://%s:%s\x1B[39m ,NODE_ENV: \x1B[32m%s\x1B[39m\n', localhost, nconf.get('PORT'), nconf.get('NODE_ENV'));

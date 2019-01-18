@@ -1,17 +1,14 @@
-const TABLE = 'bookshelf_items';
+const TABLE = 'contents';
 const PRIMARY_KEY = 'id';
 
 export = `
 CREATE TABLE IF NOT EXISTS ${TABLE} (
 	${PRIMARY_KEY} INT UNSIGNED AUTO_INCREMENT,
-	book INT,
 	section INT,
-	bookshelf INT,
+	contents TEXT,
 	createdAt datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
 	updatedAt timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
 	PRIMARY KEY (${PRIMARY_KEY}),
-	FOREIGN KEY (book) REFERENCES books(id),
-	FOREIGN KEY (section) REFERENCES sections(id),
-	FOREIGN KEY (bookshelf) REFERENCES bookshelves(id)
+	FOREIGN KEY (section) REFERENCES sections(id)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
 `;

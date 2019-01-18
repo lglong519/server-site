@@ -1,0 +1,22 @@
+@api = http://127.0.0.1:51202/books
+
+### get books
+GET {{api}}
+content-type: application/json
+
+### get books
+GET {{api}}/3714
+content-type: application/json
+
+### get sections
+GET {{api}}/3714/sections
+content-type: application/json
+
+### upload contents
+POST {{api}}/contents
+content-type: application/json
+
+{
+	"section":20,
+	"contents":"contents"
+}

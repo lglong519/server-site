@@ -9,10 +9,10 @@ nconf.required(['MYSQL']);
 const tables = requireDir('../tables');
 
 const createTables = Object.entries(tables).map(async item => {
+	let queryStr: string = String(item[1]);
+	let table: string = item[0];
+	let checkTable = `SELECT count(0) FROM information_schema.TABLES WHERE table_schema='${nconf.get('MYSQL').database}' and table_name='${table}'`;
 	try {
-		let queryStr: string = String(item[1]);
-		let table: string = item[0];
-		let checkTable = `SELECT count(0) FROM information_schema.TABLES WHERE table_schema='${nconf.get('MYSQL').database}' and table_name='${table}'`;
 		let results = await query(checkTable);
 		if (_.get(results, '[0][\'count(0)\']') == 0) {
 			let results = await query(queryStr);
@@ -22,6 +22,8 @@ const createTables = Object.entries(tables).map(async item => {
 		}
 		return Promise.resolve();
 	} catch (e) {
+		debug('create table sql', queryStr);
+		debug('check table sql', checkTable);
 		debug(e);
 		return Promise.reject(e);
 	}
