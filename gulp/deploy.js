@@ -128,5 +128,5 @@ gulp.task('shell.single',() => gulpSSH
 					.pipe(gulp.dest('logs'))
 );
 
-gulp.task('sync', gulp.series('deploy:single','shell.single'));
-// gulp.task('sync', gulp.series('deploy:single'));
+// gulp.task('sync', gulp.series('deploy:single','shell.single'));
+gulp.task('sync', gulp.series('deploy:single'));

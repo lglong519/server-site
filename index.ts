@@ -16,7 +16,7 @@ import * as morgan from './modules/koa-morgan';
 import * as koaBody from 'koa-body';
 import * as localhost from './libs/getHost';
 import history from './libs/history';
-import { query } from './libs/mysqlPool';
+import connection, { query } from './libs/mysqlPool';
 
 const cors = require('./modules/cors');
 /**
@@ -30,6 +30,7 @@ const debug = Debug('ws:index');
 const server = new Koa();
 
 server.context.exec = query;
+server.context.mysql = connection;
 server.use(history({
 	rewrites: [
 		{ from: /\/acc\/[^.]*$/, to: '/acc/index.html' },
@@ -48,10 +49,12 @@ server.use(koaBody());
 /**
  * @description load routes
  */
-import * as layouts from './routes/layouts';
+import layouts from './routes/layouts';
 server.use(layouts.routes());
 import books from './routes/books';
 server.use(books.routes());
+import dis from './routes/dis';
+server.use(dis.routes());
 
 server.listen(nconf.get('PORT'), () => {
 	debug('ready on \x1B[33mhttp://%s:%s\x1B[39m ,NODE_ENV: \x1B[32m%s\x1B[39m\n', localhost, nconf.get('PORT'), nconf.get('NODE_ENV'));

@@ -11,19 +11,26 @@ interface Options {
 	select?: string;
 	queryString?: string;
 	filter?(ctx: any): object;
+	projection?: any;
+	detailProjection?: any;
+	listProjection?: any;
 }
 
 export default class MySQL {
 
 	table: string;
 	options: Options;
+	ctx: any;
 	constructor (table: string, {
 		pageSize = 100,
 		maxPageSize = 100,
 		sort = '-createdAt',
 		select = '*',
 		queryString = 'id',
-		filter
+		filter,
+		detailProjection, // = async (ctx,data) => Promise.resolve(data),
+		listProjection, // = async (ctx,data) => Promise.resolve(data)
+		projection
 	}: Options) {
 		this.table = table;
 		this.options = {
@@ -32,31 +39,20 @@ export default class MySQL {
 			sort,
 			select,
 			queryString,
-			filter
+			filter,
+			detailProjection,
+			listProjection,
+			projection
 		};
 	}
 	query () {
 		return async ctx => {
 			try {
+				this.ctx = ctx;
 				// 1.WHERE
-				let where: string = '';
 				let conditions: string[] = [];
-				if (ctx.query.q) {
-					let q: object = JSON.parse(ctx.query.q);
-					Object.keys(q).forEach(key => {
-						conditions.push(`${key}=${q[key]}`);
-					});
-				}
-				if (this.options.filter) {
-					let q: object = this.options.filter(ctx);
-					Object.keys(q).forEach(key => {
-						conditions.push(`${key}=${q[key]}`);
-					});
-				}
-				conditions = [...new Set(conditions)];
-				if (conditions.length) {
-					where = `where ${conditions.join(' and ')}`;
-				}
+				let where: string = this.setConditions(conditions);
+
 				// 2.ORDER BY
 				const sort: string = ctx.query.sort || this.options.sort;
 				let orderBy: string = `ORDER BY ${sort}+0 ASC`;
@@ -64,21 +60,25 @@ export default class MySQL {
 					orderBy = `ORDER BY ${sort.replace('-', '')}+0 DESC`;
 				}
 				// 3.LIMIT & OFFSET
-				const page = Number(ctx.query.p) >= 0 ? Number(ctx.query.p) : 0;
+				const currentPage = Number(ctx.query.p) >= 0 ? Number(ctx.query.p) : 0;
 				const requestedPageSize = Number(ctx.query.pageSize) > 0 ? Number(ctx.query.pageSize) : this.options.pageSize;
 				const pageSize = Math.min(requestedPageSize, this.options.maxPageSize);
 				// query
-				let sql = `select ${this.options.select} from ${this.table} ${where} ${orderBy} LIMIT ${pageSize} OFFSET ${page * pageSize}`;
+				let sql = `select ${this.options.select} from ${this.table} ${where} ${orderBy} LIMIT ${pageSize} OFFSET ${currentPage * pageSize}`;
 				debug('sql:', sql);
-				let countSql = `select count(*) as count from ${this.table} ${where}`;
 				let results = await query(sql);
-				let count = await query(countSql);
-				// set headers
-				ctx.set({
-					'X-Page-Size': pageSize,
-					'X-Current-Page': page,
-					'X-Total-Count': _.get(count, '[0].count')
-				});
+
+				let countSql = `select count(*) as count from ${this.table} ${where}`;
+				await this.applyHeaders(ctx, countSql, pageSize, currentPage);
+
+				let projection = this.options.listProjection || this.options.projection;
+				if (projection) {
+					let outputs = results.map(async item => {
+						return await projection(ctx, item);
+					});
+					ctx.body = await Promise.all(outputs);
+					return;
+				}
 				ctx.body = results;
 			} catch (e) {
 				ctx.throw(400, e);
@@ -88,38 +88,64 @@ export default class MySQL {
 	detail () {
 		return async ctx => {
 			try {
+				this.ctx = ctx;
 				// 1.WHERE
-				let where: string = '';
 				// 默认使用 id
-				let conditions: string[] = [`${this.options.queryString}=${ctx.params.id}`];
-				if (ctx.query.q) {
-					let q: object = JSON.parse(ctx.query.q);
-					Object.keys(q).forEach(key => {
-						conditions.push(`${key}=${q[key]}`);
-					});
-				}
-				if (this.options.filter) {
-					let q: object = this.options.filter(ctx);
-					Object.keys(q).forEach(key => {
-						conditions.push(`${key}=${q[key]}`);
-					});
-				}
-				conditions = [...new Set(conditions)];
-				if (conditions.length) {
-					where = `where ${conditions.join(' and ')}`;
-				}
+				let conditions: string[] = [`${this.options.queryString}=${ctx.params[this.options.queryString]}`];
+				let where: string = this.setConditions(conditions);
+
 				// query
 				let sql = `select ${this.options.select} from ${this.table} ${where} LIMIT 1`;
 				debug('sql:', sql);
 				let results = await query(sql);
-				if (!results || !results.length) {
-					throw Error('NOt_FOUND');
+				let output = _.get(results, '[0]');
+				if (!output) {
+					throw Error('NOT_FOUND');
 				}
-				ctx.body = results[0];
+				let projection = this.options.detailProjection || this.options.projection;
+				if (projection) {
+					ctx.body = await projection(ctx, output);
+					return;
+				}
+				ctx.body = output;
 			} catch (e) {
 				ctx.throw(400, e);
 			}
 		};
+	}
+	private async applyHeaders (ctx, countSql, pageSize, currentPage) {
+		let count = await query(countSql);
+		// set headers
+		ctx.set({
+			'X-Page-Size': pageSize,
+			'X-Current-Page': currentPage,
+			'X-Total-Count': _.get(count, '[0].count'),
+			'X-Total-Pages': Math.ceil(_.get(count, '[0].count') / pageSize),
+		});
+	}
+	private setConditions (conditions: string[]): string {
+		if (this.ctx.query.q) {
+			let q: object = JSON.parse(this.ctx.query.q);
+			this.serialize(q, conditions);
+		}
+		if (this.options.filter) {
+			let q: object = this.options.filter(this.ctx);
+			this.serialize(q, conditions);
+		}
+		conditions = [...new Set(conditions)];
+		if (conditions.length) {
+			return `where ${conditions.join(' and ')}`;
+		}
+		return '';
+	}
+	private serialize (q, conditions) {
+		Object.keys(q).forEach(key => {
+			let value = q[key];
+			if (value && !(/^\d+$|\./).test(value)) {
+				value = `'${value}'`;
+			}
+			conditions.push(`${key}=${value}`);
+		});
 	}
 
 }

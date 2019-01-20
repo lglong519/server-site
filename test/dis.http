@@ -1,0 +1,42 @@
+@api = http://127.0.0.1:51202/dis
+@base = http://127.0.0.1:51202
+
+### signin
+POST {{api}}/access-tokens
+content-type: application/json
+
+{
+	"login":"login",
+	"password":"password",
+	"client":"BOOK"
+}
+
+### signup
+POST {{api}}/me
+content-type: application/json
+
+{
+	"username":"login",
+	"password":"password",
+	"client":"BOOK"
+}
+
+### bookshelf
+GET {{api}}/me/bookshelf
+content-type: application/json
+x-access-token: CNFfBykUafpZ3cfwS58zFVgy
+
+### add a book to bookshelf
+POST {{base}}/books/22585/mark
+content-type: application/json
+x-access-token: 4waW1Mt7AlIjKTAVkDFIz2Jt
+
+### bookmark 2739693
+POST {{base}}/books/3714/sections/2778699/mark
+content-type: application/json
+x-access-token: 4waW1Mt7AlIjKTAVkDFIz2Jt
+
+### DELETE a book from bookshelf
+DELETE {{api}}/me/bookshelf/books/22585
+content-type: application/json
+x-access-token: 4waW1Mt7AlIjKTAVkDFIz2Jt

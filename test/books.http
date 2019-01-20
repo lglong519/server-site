@@ -4,6 +4,10 @@
 GET {{api}}
 content-type: application/json
 
+### get 完本 books
+GET {{api}}?q={"status": "完本"}
+content-type: application/json
+
 ### get books
 GET {{api}}/3714
 content-type: application/json
@@ -12,11 +16,15 @@ content-type: application/json
 GET {{api}}/3714/sections
 content-type: application/json
 
-### upload contents
+### get a section
+GET {{api}}/sections/2805718/contents
+content-type: application/json
+
+### insert a content
 POST {{api}}/contents
 content-type: application/json
 
 {
-	"section":20,
-	"contents":"contents"
+	"section":27,
+	"contents":"2166271 \"n\\'\\'contents"
 }

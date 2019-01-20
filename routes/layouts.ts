@@ -12,4 +12,4 @@ router.get('/:sid/likes', layouts.likes.query);
 router.get('/:sid/work-lists', layouts.work_lists.query);
 router.get('/:sid/swipers', layouts.swipers.query);
 
-export =router;
+export default router;
