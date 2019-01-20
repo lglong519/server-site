@@ -17,6 +17,7 @@ import * as koaBody from 'koa-body';
 import * as localhost from './libs/getHost';
 import history from './libs/history';
 import connection, { query } from './libs/mysqlPool';
+import * as koaCompress from 'koa-compress';
 
 const cors = require('./modules/cors');
 /**
@@ -41,6 +42,7 @@ server.use(history({
 /**
  * @name 设置静态资源目录
  */
+server.use(koaCompress());
 server.use(koaStatic(`${process.cwd()}/public`));
 server.use(morgan('dev'));
 server.use(cors(nconf.get('CORS')));
