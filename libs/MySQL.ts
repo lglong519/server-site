@@ -128,6 +128,12 @@ export default class MySQL {
 			let q: object = JSON.parse(this.ctx.query.q);
 			this.serialize(q, conditions);
 		}
+		if (this.ctx.query.like) {
+			let like: object = JSON.parse(this.ctx.query.like);
+			Object.keys(like).forEach(key => {
+				conditions.push(`${key} LIKE '%${like[key]}%'`);
+			});
+		}
 		if (this.options.filter) {
 			let q: object = this.options.filter(this.ctx);
 			this.serialize(q, conditions);
