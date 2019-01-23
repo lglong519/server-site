@@ -1,4 +1,5 @@
 import * as nconf from 'nconf';
+import * as _ from 'lodash';
 /**
  * @description 加载配置,必需应用在所有自定义模块前
  */
@@ -32,6 +33,12 @@ const server = new Koa();
 
 server.context.exec = query;
 server.context.mysql = connection;
+server.context.validate = function (data) {
+	return data && data.length;
+};
+server.context.detail = function (data) {
+	return _.get(data, '[0]');
+};
 server.use(history({
 	rewrites: [
 		{ from: /\/acc\/[^.]*$/, to: '/acc/index.html' },

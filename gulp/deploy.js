@@ -84,7 +84,7 @@ gulp.task(
 		() => gulpSSH
 			.shell([
 				`cd ${nconf.get('SERVER')}`,
-				'gulp build',
+				// 'gulp build',
 				'pm2 start server.json'
 			], {
 				filePath: 'shell.log'

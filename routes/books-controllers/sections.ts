@@ -9,7 +9,7 @@ const controller = new MySQL('sections', {
 			filter.book = ctx.params.bookId;
 		}
 		return filter as object;
-	}
+	},
 });
 
 export const insert = async ctx => {
