@@ -36,11 +36,9 @@ const gulpSSH = new GulpSSH({
 	sshConfig: config
 });
 const destGlobs = [
-	'./**/*.*',
-	'./**/*',
+	'./**/*.js',
+	'./**/*.json',
 	'!**/node_modules/**',
-	'!**/logs/**',
-	'!./dist/**',
 	'!./.vscode/**',
 	'!./mysql/**',
 	'!./typings/**',
