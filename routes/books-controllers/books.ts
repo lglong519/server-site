@@ -24,7 +24,7 @@ const controller = new MySQL('books', {
 		where book=${data.id}
 		and sequence=(select min(sequence) from sections where book=${data.id})`);
 		if (first.length) {
-			data.firstSection = first[0].lastSection;
+			data.firstSection = first[0].fid;
 		}
 		let last = await ctx.exec(`select id as lid,title as lastSection from sections 
 		where book=${data.id}
