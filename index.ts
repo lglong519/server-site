@@ -34,7 +34,30 @@ const server = new Koa();
 server.context.exec = query;
 server.context.mysql = connection;
 server.context.validate = function (data) {
-	return data && data.length;
+	let bool = Boolean(data && data.length);
+	return {
+		then (cb) {
+			if (bool) {
+				if (cb) {
+					cb(data[0]);
+				}
+			}
+			return this;
+		},
+		catch (cb) {
+			if (!bool) {
+				if (cb) {
+					cb();
+				}
+			}
+			return this;
+		},
+		error () {
+			if (!bool) {
+				throw Error('NOT_FOUND');
+			}
+		}
+	};
 };
 server.context.detail = function (data) {
 	return _.get(data, '[0]');

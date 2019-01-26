@@ -4,8 +4,8 @@ const PRIMARY_KEY = '_id';
 export = `
 CREATE TABLE IF NOT EXISTS ${TABLE} (
 	${PRIMARY_KEY} INT UNSIGNED AUTO_INCREMENT,
-	id INT,
-	title VARCHAR(100) COMMENT '书名',
+	id INT NOT NULL,
+	title VARCHAR(100) NOT NULL COMMENT '书名',
 	author CHAR(20) COMMENT '作者',
 	sort CHAR(10) COMMENT '类型',
 	cover VARCHAR(2083) COMMENT '封面',
@@ -15,8 +15,6 @@ CREATE TABLE IF NOT EXISTS ${TABLE} (
 	status CHAR(10) default '连载中' COMMENT '状态',
 	uploadDate datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '上架时间',
 	updateDate datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
-	firstSection INT COMMENT '首章',
-	lastSection INT COMMENT '最近更新',
 
 	dayvisit INT default 0,
 	weekvisit INT default 0,
@@ -37,3 +35,5 @@ CREATE TABLE IF NOT EXISTS ${TABLE} (
 	FOREIGN KEY (lastSection) REFERENCES sections(id)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
 `;
+// firstSection INT COMMENT '首章',
+// lastSection INT COMMENT '最近更新',

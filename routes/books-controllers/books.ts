@@ -19,19 +19,20 @@ const controller = new MySQL('books', {
 			case 'chuanyue': data.sortn = '穿越小说'; break;
 			case 'wangyou': data.sortn = '网游小说'; break;
 			case 'kehuan': data.sortn = '科幻小说'; break;
+			default: data.sortn = data.sort;
 		}
 		let first = await ctx.exec(`select id as fid,title as firstSection from sections 
 		where book=${data.id}
 		and sequence=(select min(sequence) from sections where book=${data.id})`);
-		if (first.length) {
-			data.firstSection = first[0].fid;
-		}
-		let last = await ctx.exec(`select id as lid,title as lastSection from sections 
+		ctx.validate(first).then(value => {
+			Object.assign(data, value);
+		});
+		let last = await ctx.exec(`select id as lid,title as lastSection,updatedAt as updateDate from sections 
 		where book=${data.id}
 		and sequence=(select max(sequence) from sections where book=${data.id})`);
-		if (last.length) {
-			data.lastSection = last[0].lastSection;
-		}
+		ctx.validate(last).then(value => {
+			Object.assign(data, value);
+		});
 		return data;
 	}
 });

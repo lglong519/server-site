@@ -54,18 +54,44 @@ export const bookshelf = async ctx => {
 			throw Error('UNKNOWN_ERR');
 		}
 		let bookshelf = results[0];
-		let itemSql = `select * from bookshelf_items 
-		left join (select id as bid,title as btitle from books) as books 
-		on bookshelf_items.book=books.bid
-		left join (select id as mid,title as mtitle,book as mbook from sections) as ms 
-		on bookshelf_items.mark is not null and bookshelf_items.mark=ms.mid
-		left join (select id as sid,title as stitle,book as sbook,sequence from sections) as sections 
-		on sections.sbook=books.bid 
-		and sections.sequence=(select max(sequence) from sections where sections.book=bookshelf_items.book)
-		where bookshelf_items.bookshelf=${bookshelf.id} ORDER BY updatedAt+0 DESC;
+		/*
+		let itemSql = `select * from bookshelf_items
+		 left join (select id as bid,title as btitle from books) as books
+		 on bookshelf_items.book=books.bid
+		 left join (select id as mid,title as mtitle,book as mbook from sections) as ms
+		 on bookshelf_items.mark is not null and bookshelf_items.mark=ms.mid
+		 left join (select id as sid,title as stitle,book as sbook,sequence from sections) as sections
+		 on sections.sbook=books.bid
+		 and sections.sequence=(select max(sequence) from sections where sections.book=bookshelf_items.book)
+		 where bookshelf_items.bookshelf=${bookshelf.id} ORDER BY updatedAt+0 DESC;
 		`;
 		debug('itemSql', itemSql);
 		bookshelf.books = await ctx.exec(itemSql);
+		*/
+		let itemSql = `select * from bookshelf_items
+		 left join (select id as bid,title as btitle from books) as books
+		 on bookshelf_items.book=books.bid
+		 where bookshelf=${bookshelf.id} ORDER BY updatedAt+0 DESC`;
+		debug('itemSql', itemSql);
+		bookshelf.books = await ctx.exec(itemSql);
+		let tasks = bookshelf.books.map(async item => {
+			if (item.mark) {
+				let markSql = `select id as mid,title as mtitle,book as mbook from sections where id=${item.mark}`;
+				debug('bookmark item', markSql);
+				let result = await ctx.exec(markSql);
+				ctx.validate(result).then(value => {
+					Object.assign(item, value);
+				});
+			}
+			let newSectionSql = `select id as sid,title as stitle,book as sbook from sections
+				 where book=${item.book} order by sequence DESC LIMIT 1`;
+			debug('bookmark item', newSectionSql);
+			let result = await ctx.exec(newSectionSql);
+			ctx.validate(result).then(value => {
+				Object.assign(item, value);
+			});
+		});
+		await Promise.all(tasks);
 		ctx.body = bookshelf;
 	} catch (e) {
 		ctx.throw(400, e);
