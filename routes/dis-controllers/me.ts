@@ -97,15 +97,3 @@ export const bookshelf = async ctx => {
 		ctx.throw(400, e);
 	}
 };
-export const removeBook = async ctx => {
-	try {
-		const { me } = ctx.state;
-		const { id: bookId } = ctx.params;
-		let delSql = `DELETE FROM bookshelf_items WHERE book=${bookId} and bookshelf=(select id from bookshelves where user='${me._id}')`;
-		debug('delSql', delSql);
-		await ctx.exec(delSql);
-		ctx.status = 204;
-	} catch (e) {
-		ctx.throw(400, e);
-	}
-};

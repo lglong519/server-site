@@ -1,6 +1,6 @@
 import * as rp from 'request-promise';
 import Debug from '../../modules/Debug';
-const debug = Debug('ws:Users');
+const debug = Debug('ws:applyToken');
 
 export default async (ctx, next) => {
 	try {

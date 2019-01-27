@@ -4,6 +4,9 @@ import * as _ from 'lodash';
 import Debug from '../modules/Debug';
 const debug = Debug('ws:MySQL');
 
+interface Projection{
+	<T>(ctx: any, data: T): Promise<T>;
+}
 interface Options {
 	pageSize?: number;
 	maxPageSize?: number;
@@ -11,9 +14,9 @@ interface Options {
 	select?: string;
 	queryString?: string;
 	filter?(ctx: any): object;
-	projection?: any;
-	detailProjection?: any;
-	listProjection?: any;
+	projection?: Projection;
+	detailProjection?: Projection;
+	listProjection?: Projection;
 }
 
 export default class MySQL {
@@ -22,7 +25,7 @@ export default class MySQL {
 	options: Options;
 	ctx: any;
 	constructor (table: string, {
-		pageSize = 100,
+		pageSize = 10,
 		maxPageSize = 100,
 		sort = '-createdAt',
 		select = '*',
@@ -51,7 +54,7 @@ export default class MySQL {
 				this.ctx = ctx;
 				// 1.WHERE
 				let conditions: string[] = [];
-				let where: string = this.setConditions(conditions);
+				let where: string = await this.setConditions(conditions);
 
 				// 2.ORDER BY
 				const sort: string = ctx.query.sort || this.options.sort;
@@ -65,7 +68,7 @@ export default class MySQL {
 				const pageSize = Math.min(requestedPageSize, this.options.maxPageSize);
 				// query
 				let sql = `select ${this.options.select} from ${this.table} ${where} ${orderBy} LIMIT ${pageSize} OFFSET ${currentPage * pageSize}`;
-				debug('sql:', sql);
+				debug('query sql:', sql);
 				let results = await query(sql);
 
 				let countSql = `select count(*) as count from ${this.table} ${where}`;
@@ -92,16 +95,15 @@ export default class MySQL {
 				// 1.WHERE
 				// 默认使用 id
 				let conditions: string[] = [`${this.options.queryString}=${ctx.params[this.options.queryString]}`];
-				let where: string = this.setConditions(conditions);
+				let where: string = await this.setConditions(conditions);
 
 				// query
 				let sql = `select ${this.options.select} from ${this.table} ${where} LIMIT 1`;
-				debug('sql:', sql);
-				let results = await query(sql);
-				let output = _.get(results, '[0]');
-				if (!output) {
-					throw Error('NOT_FOUND');
-				}
+				debug('detail sql:', sql);
+				let output;
+				ctx.validate(await query(sql)).then(value => {
+					output = value;
+				}).error();
 				let projection = this.options.detailProjection || this.options.projection;
 				if (projection) {
 					ctx.body = await projection(ctx, output);
@@ -113,6 +115,38 @@ export default class MySQL {
 			}
 		};
 	}
+	delete () {
+		return async ctx => {
+			try {
+				this.ctx = ctx;
+				// 1.WHERE
+				// 默认使用 id
+				let conditions: string[] = [`${this.options.queryString}=${ctx.params[this.options.queryString]}`];
+				let where: string = await this.setConditions(conditions);
+
+				// query
+				let sql = `select * from ${this.table} ${where} LIMIT 1`;
+				debug('findone sql:', sql);
+				let data;
+				ctx.validate(await query(sql)).then(value => {
+					data = value;
+				}).error();
+				// recycle
+				let recycleSql = `
+				INSERT INTO recycles (id,collection,data) 
+				VALUES (?,?,?);`;
+				await ctx.exec(ctx.mysql.format(recycleSql, [data.id, this.table, JSON.stringify(data)]));
+				// delete
+				let deleteSql = `delete from ${this.table} ${where}`;
+				debug('deleteSql:', deleteSql);
+				await ctx.exec(deleteSql);
+				ctx.status = 204;
+			} catch (e) {
+				ctx.throw(400, e);
+			}
+		};
+	}
+	// 使用 this.ctx 会导致设置 headers 失败
 	private async applyHeaders (ctx, countSql, pageSize, currentPage) {
 		let count = await query(countSql);
 		// set headers
@@ -123,7 +157,7 @@ export default class MySQL {
 			'X-Total-Pages': Math.ceil(_.get(count, '[0].count') / pageSize),
 		});
 	}
-	private setConditions (conditions: string[]): string {
+	private async setConditions (conditions: string[]): Promise<string> {
 		if (this.ctx.query.q) {
 			let q: object = JSON.parse(this.ctx.query.q);
 			this.serialize(q, conditions);
@@ -135,7 +169,7 @@ export default class MySQL {
 			});
 		}
 		if (this.options.filter) {
-			let q: object = this.options.filter(this.ctx);
+			let q: object = await this.options.filter(this.ctx);
 			this.serialize(q, conditions);
 		}
 		conditions = [...new Set(conditions)];

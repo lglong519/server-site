@@ -7,14 +7,15 @@ CREATE TABLE IF NOT EXISTS ${TABLE} (
 	id INT,
 	book INT COMMENT '书本 id',
 	title VARCHAR(100),
-	prev INT COMMENT '上一章 id',
-	next INT COMMENT '下一章 id',
 	sequence INT COMMENT 'index',
 	createdAt datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
 	updatedAt timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
 	PRIMARY KEY (${PRIMARY_KEY}),
-	FOREIGN KEY (book) REFERENCES books(id),
-	FOREIGN KEY (prev) REFERENCES sections(id),
-	FOREIGN KEY (next) REFERENCES sections(id)
+	INDEX ${TABLE}_index(id,book,sequence),
+	FOREIGN KEY (book) REFERENCES books(id)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
 `;
+// prev INT COMMENT '上一章 id',
+// next INT COMMENT '下一章 id',
+// FOREIGN KEY (prev) REFERENCES sections(id),
+// FOREIGN KEY (next) REFERENCES sections(id)

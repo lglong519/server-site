@@ -40,3 +40,17 @@ x-access-token: 4waW1Mt7AlIjKTAVkDFIz2Jt
 DELETE {{api}}/me/bookshelf/books/22585
 content-type: application/json
 x-access-token: 4waW1Mt7AlIjKTAVkDFIz2Jt
+
+### create footsteps
+POST {{api}}/footsteps/book
+content-type: application/json
+x-access-token: 7aA340lnl4TPOswoaJMqofp6
+
+{
+	"title":"title"
+}
+
+### get my footsteps
+GET {{api}}/me/footsteps/book
+content-type: application/json
+x-access-token: 7aA340lnl4TPOswoaJMqofp6

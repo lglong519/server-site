@@ -1,7 +1,7 @@
 
 import MySQL from '../../libs/MySQL';
 import Debug from '../../modules/Debug';
-const debug = Debug('ws:bookshelves');
+const debug = Debug('ws:contents');
 
 export const insert = async ctx => {
 	try {
@@ -30,7 +30,7 @@ const controller = new MySQL('sections as s,contents as c', {
 			's.id': 'c.section'
 		};
 	},
-	async detailProjection (ctx, data) {
+	async detailProjection (ctx, data: any) {
 		/*
 		let sql = `select * from sections as ms
 		 left join (select title as btitle,id as bid from books) as books on books.bid=ms.book
@@ -40,7 +40,13 @@ const controller = new MySQL('sections as s,contents as c', {
 		 on ns.nbook=ms.book and ns.nse=(select min(sequence) from sections where sequence>ms.sequence limit 1)
 		 where id=${data.id};`;
 		 */
-		let start = Date.now();
+		// book
+		let bookSql = `select title as btitle,author from books where id=${data.book}`;
+		debug('bookSql', bookSql);
+		let book = await ctx.exec(bookSql);
+		ctx.validate(book).then(value => {
+			Object.assign(data, value);
+		});
 		// 上一章
 		let prevSql = `select id as prev from sections 
 		 where book=${data.book} and sequence<${data.sequence} order by sequence desc limit 1`;
@@ -57,8 +63,7 @@ const controller = new MySQL('sections as s,contents as c', {
 		ctx.validate(next).then(value => {
 			Object.assign(data, value);
 		});
-		debug('查询耗时: %dms', Date.now() - start);
-		return data;
+		return data as any;
 	}
 });
 

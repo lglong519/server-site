@@ -11,7 +11,7 @@ const controller = new MySQL('books', {
 		}
 		return filter as object;
 	},
-	async detailProjection (ctx, data) {
+	async detailProjection (ctx, data: any) {
 		switch (data.sort) {
 			case 'xuanhuan': data.sortn = '玄幻小说'; break;
 			case 'xiuzhen': data.sortn = '修真小说'; break;
