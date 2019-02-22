@@ -30,6 +30,7 @@ export const insert = async ctx => {
 				where not exists(select id from sections where id=${section.id});
 			`;
 		await ctx.exec(sql);
+		await ctx.exec(`UPDATE books set updateDate=now() where id=${section.book}`);
 		ctx.status = 204;
 	} catch (e) {
 		ctx.throw(400, e);

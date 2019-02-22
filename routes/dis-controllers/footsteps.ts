@@ -30,9 +30,14 @@ const controller = new MySQL('footsteps', {
 		filter.type = ctx.params.type;
 		return filter as object;
 	},
-	projection (ctx, data: any) {
+	async projection (ctx, data: any) {
 		try {
-			data.data = JSON.parse(data.data);
+			let parse = JSON.parse(data.data);
+			if (typeof parse === 'string') {
+				data.data = JSON.parse(parse);
+			} else {
+				data.data = parse;
+			}
 		} catch (e) {
 			debug('INVALID_JSON');
 		}

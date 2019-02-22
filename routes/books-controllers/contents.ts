@@ -14,6 +14,7 @@ export const insert = async ctx => {
 		where not exists(select id from contents where section=${ctx.request.body.section});
 	`;
 		await ctx.exec(ctx.mysql.format(sql, [ctx.request.body.contents]));
+		await ctx.exec(`UPDATE books set updateDate=now() where id=${book}`);
 		ctx.status = 204;
 	} catch (e) {
 		ctx.throw(400, e);
